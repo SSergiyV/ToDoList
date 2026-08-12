@@ -7,8 +7,8 @@ class TaskService:
     def __init__(self, repository: TaskRepository):
         self.repository = repository
 
-    def get_all(self):
-        return self.repository.get_all()
+    def get_all(self, skip: int = 0, limit: int = 10):
+        return self.repository.get_all(skip, limit)
 
     def create(self, data: TaskCreate):
         task = Task(

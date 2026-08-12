@@ -141,3 +141,31 @@ def test_delete_task_not_found(client):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Task not found"
+
+def test_get_tasks_pagination(client):
+    for i in range(5):
+        client.post(
+            "/tasks",
+            json={"title": f"Pagination task {i}"}
+        )
+
+    response = client.get("/tasks?skip=1&limit=2")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 2
+    assert data[0]["title"] == "Pagination task 1"
+    assert data[1]["title"] == "Pagination task 2"
+
+def test_get_tasks_limit_validation(client):
+    response = client.get("/tasks?limit=101")
+
+    assert response.status_code == 422
+
+def test_get_tasks_skip_validation(client):
+    response = client.get("/tasks?skip=-1")
+
+    assert response.status_code == 422
+

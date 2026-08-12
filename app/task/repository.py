@@ -11,8 +11,16 @@ class TaskRepository:
     def __init__ (self, db: Session):
         self.db = db
 
-    def get_all(self):
-        return self.db.execute(select(Task)).scalars().all()
+    def get_all(self, skip: int = 0, limit: int = 10):
+        return (
+            self.db.execute(
+                select(Task)
+                .offset(skip)
+                .limit(limit)
+            )
+            .scalars()
+            .all()
+        )
 
     def create(self, task: Task):
         self.db.add(task)

@@ -17,13 +17,18 @@ class TaskRepository:
     limit: int = 10,
     sort_by: str = "id",
     order: str = "asc",
-    done: bool | None = None
+    done: bool | None = None,
+    search: str | None = None
     ):
         query = select(Task)
+
 
         if done is not None:
             query = query.where(Task.done == done)
 
+        if search:
+            query = query.where(Task.title.ilike(f"%{search}%"))
+            
         if sort_by == "id":
             column = Task.id
         elif sort_by == "title":

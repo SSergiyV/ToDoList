@@ -327,3 +327,88 @@ def test_get_tasks_filter_sort_and_paginate(client):
     titles = [task["title"] for task in data]
 
     assert titles == ["Charlie", "Echo"]
+
+def test_get_tasks_search(client):
+    client.post("/tasks", json={"title": "Learn Python"})
+    client.post("/tasks", json={"title": "Learn FastAPI"})
+    client.post("/tasks", json={"title": "Learn SQLAlchemy"})
+
+    response = client.get("/tasks?search=Python")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    titles = [task["title"] for task in data]
+
+    assert titles == ["Learn Python"]
+
+def test_get_tasks_search_case_insensitive(client):
+    client.post("/tasks", json={"title": "Learn Python"})
+    client.post("/tasks", json={"title": "Python FastAPI"})
+    client.post("/tasks", json={"title": "Learn SQLAlchemy"})
+
+    response = client.get("/tasks?search=python")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    titles = [task["title"] for task in data]
+
+    assert titles == [
+        "Learn Python",
+        "Python FastAPI"
+    ]
+
+def test_get_tasks_search_and_done_filter(client):
+    first = client.post(
+        "/tasks",
+        json={"title": "Learn Python"}
+    ).json()
+
+    client.post(
+        "/tasks",
+        json={"title": "Learn FastAPI"}
+    )
+
+    response = client.patch(
+        f"/tasks/{first['id']}",
+        json={"done": True}
+    )
+
+    assert response.status_code == 200
+
+    response = client.get(
+        "/tasks?search=Python&done=true"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 1
+    assert data[0]["title"] == "Learn Python"
+    assert data[0]["done"] is True
+
+def test_get_tasks_search_sort_and_paginate(client):
+    tasks = [
+        "Python Basics",
+        "Python FastAPI",
+        "Python Advanced",
+        "JavaScript Basics",
+    ]
+
+    for title in tasks:
+        client.post("/tasks", json={"title": title})
+
+    response = client.get(
+        "/tasks?search=python&sort_by=title&order=asc&skip=1&limit=1"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 1
+    assert data[0]["title"] == "Python Basics"

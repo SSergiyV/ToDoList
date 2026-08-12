@@ -13,14 +13,16 @@ class TaskService:
     limit: int = 10,
     sort_by: str = "id",
     order: str = "asc",
-    done: bool | None = None 
+    done: bool | None = None,
+    search: str | None = None 
 ):
         return self.repository.get_all(
             skip,
             limit,
             sort_by,
             order,
-            done
+            done,
+            search
         )
 
     def create(self, data: TaskCreate):

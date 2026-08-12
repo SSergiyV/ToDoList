@@ -29,14 +29,13 @@ class TaskRepository:
         if search:
             query = query.where(Task.title.ilike(f"%{search}%"))
             
-        if sort_by == "id":
-            column = Task.id
-        elif sort_by == "title":
-            column = Task.title
-        elif sort_by == "created_at":
-            column = Task.created_at
-        else:
-            column = Task.id
+        sort_columns = {
+            "id": Task.id,
+            "title": Task.title,
+            "created_at": Task.created_at,
+        }
+
+        column = sort_columns[sort_by]
 
         if order == "desc":
             query = query.order_by(column.desc())

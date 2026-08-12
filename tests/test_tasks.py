@@ -169,3 +169,72 @@ def test_get_tasks_skip_validation(client):
 
     assert response.status_code == 422
 
+def test_get_tasks_sort_by_title_asc(client):
+    client.post("/tasks", json={"title": "Charlie"})
+    client.post("/tasks", json={"title": "Alpha"})
+    client.post("/tasks", json={"title": "Bravo"})
+
+    response = client.get("/tasks?sort_by=title&order=asc")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    titles = [task["title"] for task in data]
+
+    assert titles == ["Alpha", "Bravo", "Charlie"]
+
+def test_get_tasks_sort_by_title_desc(client):
+    client.post("/tasks", json={"title": "Charlie"})
+    client.post("/tasks", json={"title": "Alpha"})
+    client.post("/tasks", json={"title": "Bravo"})
+
+    response = client.get("/tasks?sort_by=title&order=desc")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    titles = [task["title"] for task in data]
+
+    assert titles == ["Charlie", "Bravo", "Alpha"]
+
+def test_get_tasks_sort_by_created_at_desc(client):
+    first = client.post(
+        "/tasks",
+        json={"title": "First task"}
+    ).json()
+
+    second = client.post(
+        "/tasks",
+        json={"title": "Second task"}
+    ).json()
+
+    response = client.get(
+        "/tasks?sort_by=created_at&order=desc"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data[0]["id"] == second["id"]
+    assert data[1]["id"] == first["id"]
+
+def test_get_tasks_pagination_with_sorting(client):
+    client.post("/tasks", json={"title": "Charlie"})
+    client.post("/tasks", json={"title": "Alpha"})
+    client.post("/tasks", json={"title": "Echo"})
+    client.post("/tasks", json={"title": "Bravo"})
+
+    response = client.get(
+        "/tasks?skip=1&limit=2&sort_by=title&order=asc"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    titles = [task["title"] for task in data]
+
+    assert titles == ["Bravo", "Charlie"]

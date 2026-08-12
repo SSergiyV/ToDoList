@@ -11,16 +11,32 @@ class TaskRepository:
     def __init__ (self, db: Session):
         self.db = db
 
-    def get_all(self, skip: int = 0, limit: int = 10):
-        return (
-            self.db.execute(
-                select(Task)
-                .offset(skip)
-                .limit(limit)
-            )
-            .scalars()
-            .all()
-        )
+    def get_all(
+    self,
+    skip: int = 0,
+    limit: int = 10,
+    sort_by: str = "id",
+    order: str = "asc"
+):
+        query = select(Task)
+
+        if sort_by == "id":
+            column = Task.id
+        elif sort_by == "title":
+            column = Task.title
+        elif sort_by == "created_at":
+            column = Task.created_at
+        else:
+            column = Task.id
+
+        if order == "desc":
+            query = query.order_by(column.desc())
+        else:
+            query = query.order_by(column.asc())
+
+        query = query.offset(skip).limit(limit)
+
+        return self.db.execute(query).scalars().all()
 
     def create(self, task: Task):
         self.db.add(task)

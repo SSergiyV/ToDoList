@@ -7,8 +7,19 @@ class TaskService:
     def __init__(self, repository: TaskRepository):
         self.repository = repository
 
-    def get_all(self, skip: int = 0, limit: int = 10):
-        return self.repository.get_all(skip, limit)
+    def get_all(
+    self,
+    skip: int = 0,
+    limit: int = 10,
+    sort_by: str = "id",
+    order: str = "asc"
+):
+        return self.repository.get_all(
+            skip,
+            limit,
+            sort_by,
+            order
+        )
 
     def create(self, data: TaskCreate):
         task = Task(

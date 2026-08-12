@@ -14,9 +14,10 @@ def get_tasks(
     limit: int = Query(10, ge=1, le=100),
     sort_by: Literal["id", "title", "created_at"] = Query("id"),
     order: Literal["asc", "desc"] = Query("asc"),
+    done: bool | None = Query(None),
     service: TaskService = Depends(get_task_service)
 ):
-    return service.get_all(skip, limit, sort_by, order)
+    return service.get_all(skip, limit, sort_by, order, done)
 
 @router.post("/tasks", response_model=TaskResponse,  responses={409: {"description": "Task with this title already exists"}})
 def create_task(

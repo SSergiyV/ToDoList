@@ -16,9 +16,13 @@ class TaskRepository:
     skip: int = 0,
     limit: int = 10,
     sort_by: str = "id",
-    order: str = "asc"
-):
+    order: str = "asc",
+    done: bool | None = None
+    ):
         query = select(Task)
+
+        if done is not None:
+            query = query.where(Task.done == done)
 
         if sort_by == "id":
             column = Task.id

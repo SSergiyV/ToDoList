@@ -238,3 +238,92 @@ def test_get_tasks_pagination_with_sorting(client):
     titles = [task["title"] for task in data]
 
     assert titles == ["Bravo", "Charlie"]
+
+def test_get_tasks_filter_done_true(client):
+    first = client.post(
+        "/tasks",
+        json={"title": "Done task"}
+    ).json()
+
+    client.post(
+        "/tasks",
+        json={"title": "Another task"}
+    )
+
+    update_response = client.patch(
+        f"/tasks/{first['id']}",
+        json={"done": True}
+    )
+
+    assert update_response.status_code == 200
+
+    response = client.get("/tasks?done=true")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 1
+    assert data[0]["title"] == "Done task"
+    assert data[0]["done"] is True
+
+def test_get_tasks_filter_done_false(client):
+    first = client.post(
+        "/tasks",
+        json={"title": "Done task"}
+    ).json()
+
+    client.post(
+        "/tasks",
+        json={"title": "Pending task"}
+    )
+
+    update_response = client.patch(
+        f"/tasks/{first['id']}",
+        json={"done": True}
+    )
+
+    assert update_response.status_code == 200
+
+    response = client.get("/tasks?done=false")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 1
+    assert data[0]["title"] == "Pending task"
+    assert data[0]["done"] is False
+
+def test_get_tasks_filter_sort_and_paginate(client):
+    tasks = [
+        ("Charlie", True),
+        ("Alpha", False),
+        ("Echo", True),
+        ("Bravo", True),
+    ]
+
+    for title, done in tasks:
+        task = client.post(
+            "/tasks",
+            json={"title": title}
+        ).json()
+
+        if done:
+            response = client.patch(
+                f"/tasks/{task['id']}",
+                json={"done": True}
+            )
+            assert response.status_code == 200
+
+    response = client.get(
+        "/tasks?done=true&sort_by=title&order=asc&skip=1&limit=2"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    titles = [task["title"] for task in data]
+
+    assert titles == ["Charlie", "Echo"]

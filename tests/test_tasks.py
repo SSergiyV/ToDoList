@@ -32,9 +32,9 @@ def test_get_tasks(client):
 
     data = response.json()
 
-    assert len(data) == 2
-    assert data[0]["title"] == "Task 1"
-    assert data[1]["title"] == "Task 2"
+    assert len(data["items"]) == 2
+    assert data["items"][0]["title"] == "Task 1"
+    assert data["items"][1]["title"] == "Task 2"
 
 def test_get_task(client):
     create_response = client.post(
@@ -155,9 +155,9 @@ def test_get_tasks_pagination(client):
 
     data = response.json()
 
-    assert len(data) == 2
-    assert data[0]["title"] == "Pagination task 1"
-    assert data[1]["title"] == "Pagination task 2"
+    assert len(data["items"]) == 2
+    assert data["items"][0]["title"] == "Pagination task 1"
+    assert data["items"][1]["title"] == "Pagination task 2"
 
 def test_get_tasks_limit_validation(client):
     response = client.get("/tasks?limit=101")
@@ -180,7 +180,7 @@ def test_get_tasks_sort_by_title_asc(client):
 
     data = response.json()
 
-    titles = [task["title"] for task in data]
+    titles = [task["title"] for task in data["items"]]
 
     assert titles == ["Alpha", "Bravo", "Charlie"]
 
@@ -195,7 +195,7 @@ def test_get_tasks_sort_by_title_desc(client):
 
     data = response.json()
 
-    titles = [task["title"] for task in data]
+    titles = [task["title"] for task in data["items"]]
 
     assert titles == ["Charlie", "Bravo", "Alpha"]
 
@@ -218,8 +218,8 @@ def test_get_tasks_sort_by_created_at_desc(client):
 
     data = response.json()
 
-    assert data[0]["id"] == second["id"]
-    assert data[1]["id"] == first["id"]
+    assert data["items"][0]["id"] == second["id"]
+    assert data["items"][1]["id"] == first["id"]
 
 def test_get_tasks_pagination_with_sorting(client):
     client.post("/tasks", json={"title": "Charlie"})
@@ -235,7 +235,7 @@ def test_get_tasks_pagination_with_sorting(client):
 
     data = response.json()
 
-    titles = [task["title"] for task in data]
+    titles = [task["title"] for task in data["items"]]
 
     assert titles == ["Bravo", "Charlie"]
 
@@ -263,9 +263,9 @@ def test_get_tasks_filter_done_true(client):
 
     data = response.json()
 
-    assert len(data) == 1
-    assert data[0]["title"] == "Done task"
-    assert data[0]["done"] is True
+    assert len(data["items"]) == 1
+    assert data["items"][0]["title"] == "Done task"
+    assert data["items"][0]["done"] is True
 
 def test_get_tasks_filter_done_false(client):
     first = client.post(
@@ -291,9 +291,9 @@ def test_get_tasks_filter_done_false(client):
 
     data = response.json()
 
-    assert len(data) == 1
-    assert data[0]["title"] == "Pending task"
-    assert data[0]["done"] is False
+    assert len(data["items"]) == 1
+    assert data["items"][0]["title"] == "Pending task"
+    assert data["items"][0]["done"] is False
 
 def test_get_tasks_filter_sort_and_paginate(client):
     tasks = [
@@ -324,7 +324,7 @@ def test_get_tasks_filter_sort_and_paginate(client):
 
     data = response.json()
 
-    titles = [task["title"] for task in data]
+    titles = [task["title"] for task in data["items"]]
 
     assert titles == ["Charlie", "Echo"]
 
@@ -339,7 +339,7 @@ def test_get_tasks_search(client):
 
     data = response.json()
 
-    titles = [task["title"] for task in data]
+    titles = [task["title"] for task in data["items"]]
 
     assert titles == ["Learn Python"]
 
@@ -354,7 +354,7 @@ def test_get_tasks_search_case_insensitive(client):
 
     data = response.json()
 
-    titles = [task["title"] for task in data]
+    titles = [task["title"] for task in data["items"]]
 
     assert titles == [
         "Learn Python",
@@ -387,9 +387,9 @@ def test_get_tasks_search_and_done_filter(client):
 
     data = response.json()
 
-    assert len(data) == 1
-    assert data[0]["title"] == "Learn Python"
-    assert data[0]["done"] is True
+    assert len(data["items"]) == 1
+    assert data["items"][0]["title"] == "Learn Python"
+    assert data["items"][0]["done"] is True
 
 def test_get_tasks_search_sort_and_paginate(client):
     tasks = [
@@ -410,5 +410,5 @@ def test_get_tasks_search_sort_and_paginate(client):
 
     data = response.json()
 
-    assert len(data) == 1
-    assert data[0]["title"] == "Python Basics"
+    assert len(data["items"]) == 1
+    assert data["items"][0]["title"] == "Python Basics"

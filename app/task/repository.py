@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.task.models import Task
 from sqlalchemy.exc import IntegrityError
 from app.task.exceptions import DuplicateTaskError
+from sqlalchemy import func
 
 
 
@@ -28,6 +29,9 @@ class TaskRepository:
 
         if search:
             query = query.where(Task.title.ilike(f"%{search}%"))
+
+        count_query = select(func.count()).select_from(query.subquery())
+        total = self.db.execute(count_query).scalar_one()
             
         sort_columns = {
             "id": Task.id,
@@ -44,7 +48,9 @@ class TaskRepository:
 
         query = query.offset(skip).limit(limit)
 
-        return self.db.execute(query).scalars().all()
+        items = self.db.execute(query).scalars().all()
+
+        return items, total
 
     def create(self, task: Task):
         self.db.add(task)
@@ -62,9 +68,13 @@ class TaskRepository:
         return self.db.get(Task, task_id)
 
     def update(self, task: Task):
-        self.db.commit()
-        self.db.refresh(task)
-        return task
+        try:
+            self.db.commit()
+            self.db.refresh(task)
+            return task
+        except IntegrityError as e:
+            self.db.rollback()
+            raise DuplicateTaskError() from e
 
     def delete(self, task: Task):
         self.db.delete(task)

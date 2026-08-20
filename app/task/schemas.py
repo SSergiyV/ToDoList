@@ -13,6 +13,12 @@ class TaskResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class TaskListResponse(BaseModel):
+    items: list[TaskResponse]
+    total: int
+    skip: int
+    limit: int
+
 class TaskUpdate(BaseModel):
-    title: str | None = None
+    title: str | None = Field(default=None, min_length=1)
     done: bool | None = None

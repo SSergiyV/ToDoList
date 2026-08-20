@@ -1,7 +1,7 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from app.task.exceptions import DuplicateTaskError
+from app.task.exceptions import DuplicateTaskError, TaskNotFoundError
 
 
 async def duplicate_task_handler(
@@ -12,5 +12,16 @@ async def duplicate_task_handler(
         status_code=409,
         content={
             "detail": "Task with this title already exists"
+        }
+    )
+
+async def task_not_found_handler(
+    request: Request,
+    exc: TaskNotFoundError
+):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "detail": "Task not found"
         }
     )

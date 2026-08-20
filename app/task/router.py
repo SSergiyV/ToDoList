@@ -1,14 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from app.task.dependencies import get_task_service
 from app.task.service import TaskService
-from app.task.schemas import TaskCreate, TaskResponse, TaskUpdate
+from app.task.schemas import TaskCreate, TaskResponse, TaskUpdate, TaskListResponse
 from typing import Literal
 
 
 router = APIRouter()
 
 
-@router.get("/tasks", response_model=list[TaskResponse])
+@router.get("/tasks", response_model=TaskListResponse)
 def get_tasks(
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
@@ -33,8 +33,7 @@ def get_task(
     service: TaskService = Depends(get_task_service)
 ):
     task = service.get_by_id(task_id)
-    if task is None:
-        raise HTTPException(status_code=404, detail="Task not found")
+    
     return task
 
 @router.patch("/tasks/{task_id}", response_model=TaskResponse)
@@ -45,12 +44,6 @@ def update_task(
 ):
     task = service.update(task_id, data)
 
-    if task is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Task not found"
-        )
-
     return task
 
 @router.delete("/tasks/{task_id}")
@@ -58,12 +51,6 @@ def delete_task(
     task_id: int,
     service: TaskService = Depends(get_task_service)
 ):
-    task = service.delete(task_id)
-
-    if task is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Task not found"
-        )
+    service.delete(task_id)
 
     return {"message": "Task deleted"}

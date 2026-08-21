@@ -6,6 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.task.models import Task  # Import the Task model to ensure it's registered with SQLAlchemy
+from app.user.models import User  # Import the User model to ensure it's registered with SQLAlchemy
 from app.db.base import Base  # Import the Base class to access metadata
 from app.db.database import engine  # Import the database URL from your database configuration
 

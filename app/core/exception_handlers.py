@@ -2,6 +2,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from app.task.exceptions import DuplicateTaskError, TaskNotFoundError
+from app.user.exceptions import UserAlreadyExistsError
 
 
 async def duplicate_task_handler(
@@ -24,4 +25,15 @@ async def task_not_found_handler(
         content={
             "detail": "Task not found"
         }
+    )
+
+async def user_already_exists_handler(
+    request: Request,
+    exc: UserAlreadyExistsError,
+):
+    return JSONResponse(
+        status_code=409,
+        content={
+            "detail": "User with this email already exists"
+        },
     )

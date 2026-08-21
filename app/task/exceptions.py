@@ -1,5 +1,4 @@
-class AppError(Exception):
-    pass
+from app.core.exceptions import AppError
 
 class DuplicateTaskError(AppError):
     """Raised when a task with the same title already exists."""
